@@ -1,0 +1,2 @@
+keytool -genkeypair -dname "cn=Dmitriy Korobeinikov, ou=Android, o=EPAM, c=RU" -alias business -keypass android -keystore korobeinikov.keystore -storepass android -keyalg RSA -keysize 2048 -validity 10000
+keytool -exportcert -alias business -file dk.cer -keystore korobeinikov.keystore
