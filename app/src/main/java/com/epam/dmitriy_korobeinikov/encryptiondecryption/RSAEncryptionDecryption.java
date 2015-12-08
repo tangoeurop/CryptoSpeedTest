@@ -41,7 +41,7 @@ public class RSAEncryptionDecryption {
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error during startDecryptionFromResource()", e);
         }
     }
 
