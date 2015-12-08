@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
@@ -27,18 +28,19 @@ public class RSAEncryptionDecryption {
     private static final String TAG = RSAEncryptionDecryption.class.getSimpleName();
 
     private OwnKeyGenerator mKeyRetriever;
-    private String[] creditCards = {"4485872600441719", "4716319930319174", "4024007103826169", "4916169588657609", "4014735555784856",
-            "4916090704447552", "4485364917348258", "4916971584452871", "4929087640101710", "4485355147668275"};
+    private String[] creditCards = {"4485872600441719", "4716319930319174", "4024007103826169", "4916169588657609", "4014735555784856", "4916090704447552", "4485364917348258", "4916971584452871", "4929087640101710", "4485355147668275"};
+    private Context mContext;
 
     public RSAEncryptionDecryption(Context context) {
+        mContext = context;
         mKeyRetriever = new OwnKeyGenerator(context);
     }
 
     public void startDecryption() {
         LinkedList<byte[]> encryptedDataList = encryptData(creditCards);
         try {
-            saveFileIntoPublicStorage(encryptedDataList);
-            decryptData(readCreditCardFromEncryptedFile());
+            saveCreditCardsToEncryptedFile(encryptedDataList);
+            decryptData(readCreditCardsFromEncryptedFile());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,25 +51,18 @@ public class RSAEncryptionDecryption {
 
         LinkedList<byte[]> encryptedDataList = new LinkedList<>();
         try {
-            KeySpecData privateKeySpecData = mKeyRetriever.getKeySpecData(R.raw.privatekey);
-            PrivateKey privateKey = mKeyRetriever.getPrivateKey(privateKeySpecData);
+            PrivateKey key = mKeyRetriever.getPrivateKey();
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
 
-            long duration = 0;
             for (String card : creditCards) {
                 byte[] dataToEncrypt = card.getBytes();
                 byte[] encryptedData;
-                long oneCycleStartTime = System.currentTimeMillis();
                 encryptedData = cipher.doFinal(dataToEncrypt);
-                long localDuration = (System.currentTimeMillis() - oneCycleStartTime);
-                duration += localDuration;
-//                Log.i(TAG, "Card has been encrypted in " + localDuration + " milliseconds");
                 encryptedDataList.add(encryptedData);
                 Log.i(TAG, "Encrypted data: " + Arrays.toString(encryptedData));
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
-//            Log.i(TAG, "TOTAL TIME: " + duration + " milliseconds");
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
@@ -80,27 +75,22 @@ public class RSAEncryptionDecryption {
         byte[] decryptedData;
 
         try {
-            KeySpecData publicKeySpecData = mKeyRetriever.getKeySpecData(R.raw.publickey);
-            PublicKey privateKey = mKeyRetriever.getPublicKey(publicKeySpecData);
+            PublicKey key = mKeyRetriever.getPublicKey();
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, key);
 
-            long startTime = System.currentTimeMillis();
             for (byte[] data : encryptedDataList) {
-                long oneCycleStartTime = System.currentTimeMillis();
                 decryptedData = cipher.doFinal(data);
                 Log.i(TAG, "Decrypted Data: " + new String(decryptedData));
-//                Log.i(TAG, "Card has been decrypted in " + (System.currentTimeMillis() - oneCycleStartTime) + " milliseconds");
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
-//            Log.i(TAG, "TOTAL TIME: " + (System.currentTimeMillis() - startTime) + " milliseconds");
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
         }
     }
 
-    public void saveFileIntoPublicStorage(LinkedList<byte[]> creditCards) throws IOException {
+    public void saveCreditCardsToEncryptedFile(LinkedList<byte[]> creditCards) throws IOException {
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File file = new File(path, "CreditCards.txt");
         FileOutputStream fos = null;
@@ -121,7 +111,7 @@ public class RSAEncryptionDecryption {
         }
     }
 
-    public LinkedList<byte[]> readCreditCardFromEncryptedFile() throws IOException {
+    public LinkedList<byte[]> readCreditCardsFromEncryptedFile() throws IOException {
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File file = new File(path, "CreditCards.txt");
         FileInputStream fis = null;
@@ -142,6 +132,30 @@ public class RSAEncryptionDecryption {
             if (ois != null) {
                 ois.close();
                 fis.close();
+            }
+        }
+        return cards;
+    }
+
+    public LinkedList<byte[]> readEncryptedCreditCardsFromResource() throws IOException {
+        InputStream is = null;
+        ObjectInputStream ois = null;
+        LinkedList<byte[]> cards = new LinkedList<>();
+        try {
+            is = mContext.getResources().openRawResource(R.raw.creditcards);
+            ois = new ObjectInputStream(is);
+
+            while (true) {
+                cards.add((byte[]) ois.readObject());
+            }
+        } catch (EOFException e) {
+            return cards;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (ois != null) {
+                ois.close();
+                is.close();
             }
         }
         return cards;
