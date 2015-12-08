@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
 
     private BenchmarkAdapter mEncryptedDataAdapter;
     private BenchmarkAdapter mDecryptedDataAdapter;
+    private RSAEncryptionDecryption mRSAEncryptionDecryption;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +38,25 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
         encryptedDataList.setAdapter(mEncryptedDataAdapter);
         decryptedDataList.setAdapter(mDecryptedDataAdapter);
 
-        RSAEncryptionDecryption decryption = new RSAEncryptionDecryption(this);
-        decryption.setOnCryptingListener(this);
-        decryption.startCrypting();
+        mRSAEncryptionDecryption = new RSAEncryptionDecryption(this);
+        mRSAEncryptionDecryption.setOnCryptingListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = new MenuInflater(this);
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_play:
+                mRSAEncryptionDecryption.startCrypting();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -50,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
         mDecryptedDataAdapter.setIntervals(intervals);
         mDecryptedDataAdapter.notifyDataSetChanged();
     }
-
 
     private class BenchmarkAdapter extends ArrayAdapter<Long> {
         private ArrayList<Long> mIntervals;
@@ -69,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
                 v = mInflater.inflate(R.layout.list_view_row, parent, false);
             }
             TextView cardNumber = (TextView) v.findViewById(R.id.tvCardNumber);
-            cardNumber.setText("Карта № " + (position + 1));
+            cardNumber.setText(getString(R.string.generic_card_number, position + 1));
             TextView duration = (TextView) v.findViewById(R.id.tvDuration);
             duration.setText(String.valueOf(mIntervals.get(position)));
             return v;
