@@ -12,6 +12,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         RSAEncryptionDecryption decryption = new RSAEncryptionDecryption(this);
-        decryption.startDecryption();
+        decryption.startDecryptionFromResource();
     }
 }
