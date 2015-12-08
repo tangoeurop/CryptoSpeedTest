@@ -3,6 +3,7 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+import android.util.TimingLogger;
 
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
@@ -54,13 +55,16 @@ public class RSAEncryptionDecryption {
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.DECRYPT_MODE, key);
 
+            TimeLogger timeLogger = new TimeLogger(TAG, "decryptData()");
             byte[] decryptedData;
             for (byte[] card : encryptedCards) {
                 decryptedData = cipher.doFinal(card);
+                timeLogger.addSplit("decryption completed");
                 decryptedCards.add(new String(decryptedData));
                 Log.i(TAG, "Decrypted Data: " + new String(decryptedData));
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
+            timeLogger.dumpToLog();
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
@@ -77,15 +81,17 @@ public class RSAEncryptionDecryption {
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
+            TimeLogger timeLogger = new TimeLogger(TAG, "encryptData()");
             byte[] encryptedData;
-            byte[] dataToEncrypt;
             for (String card : creditCards) {
-                dataToEncrypt = card.getBytes();
+                byte[] dataToEncrypt = card.getBytes();
                 encryptedData = cipher.doFinal(dataToEncrypt);
+                timeLogger.addSplit("encryption compeleted");
                 encryptedDataList.add(encryptedData);
                 Log.i(TAG, "Encrypted data: " + Arrays.toString(encryptedData));
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
+            timeLogger.dumpToLog();
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
