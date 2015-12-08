@@ -37,7 +37,7 @@ public class TimeLogger {
     }
 
     public void addSplit(String splitLabel) {
-        long now = SystemClock.elapsedRealtime();
+        long now = SystemClock.currentThreadTimeMillis();
         mSplits.add(now);
         mSplitLabels.add(splitLabel);
     }
@@ -45,7 +45,7 @@ public class TimeLogger {
     public void dumpToLog() {
         Log.d(mTag, mLabel + ": begin");
         final long first = mSplits.get(0);
-        long now = first;
+        long now = 0;
         for (int i = 1; i < mSplits.size(); i++) {
             now = mSplits.get(i);
             final String splitLabel = mSplitLabels.get(i);

@@ -2,6 +2,7 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,8 +16,13 @@ import android.widget.TextView;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
+import com.opencsv.CSVWriter;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RSAEncryptionDecryption.OnCryptingListener {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -54,21 +60,36 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
         switch (item.getItemId()) {
             case R.id.action_play:
                 mRSAEncryptionDecryption.startCrypting();
+                writeToFile();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onEncryptionCompleted(ArrayList<Long> intervals) {
-        mEncryptedDataAdapter.setIntervals(intervals);
+    public void onCryptingCompleted(ArrayList<Long> decIntervals, ArrayList<Long> encIntervals) {
+        mDecryptedDataAdapter.setIntervals(decIntervals);
+        mDecryptedDataAdapter.notifyDataSetChanged();
+        mEncryptedDataAdapter.setIntervals(encIntervals);
         mEncryptedDataAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onDecryptionCompleted(ArrayList<Long> intervals) {
-        mDecryptedDataAdapter.setIntervals(intervals);
-        mDecryptedDataAdapter.notifyDataSetChanged();
+    public void writeToFile() {
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File csvFile = new File(path, "test");
+        try {
+            CSVWriter writer = new CSVWriter(new FileWriter(csvFile));
+
+            List<String[]> data = new ArrayList<String[]>();
+            data.add(new String[]{"India", "New Delhi"});
+            data.add(new String[]{"United States", "Washington D.C"});
+            data.add(new String[]{"Germany", "Berlin"});
+
+            writer.writeAll(data);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class BenchmarkAdapter extends ArrayAdapter<Long> {

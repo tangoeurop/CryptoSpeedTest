@@ -34,6 +34,9 @@ public class RSAEncryptionDecryption {
     private Context mContext;
     private OnCryptingListener mOnCryptingListener;
 
+    private ArrayList<Long> mDecryptedDataList;
+    private ArrayList<Long> mEncryptedDataList;
+
     public RSAEncryptionDecryption(Context context) {
         mContext = context;
         mKeyRetriever = new OwnKeyGenerator(context);
@@ -43,6 +46,7 @@ public class RSAEncryptionDecryption {
         try {
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
+            mOnCryptingListener.onCryptingCompleted(mDecryptedDataList, mEncryptedDataList);
         } catch (IOException e) {
             Log.e(TAG, "Error during startDecryptionFromResource()", e);
         }
@@ -67,7 +71,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mOnCryptingListener.onDecryptionCompleted(timeLogger.getIntervals());
+            mDecryptedDataList = (timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
@@ -96,7 +100,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mOnCryptingListener.onEncryptionCompleted(timeLogger.getIntervals());
+            mEncryptedDataList = (timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
@@ -180,7 +184,6 @@ public class RSAEncryptionDecryption {
     }
 
     public interface OnCryptingListener {
-        void onEncryptionCompleted(ArrayList<Long> intervals);
-        void onDecryptionCompleted(ArrayList<Long> intervals);
+        void onCryptingCompleted(ArrayList<Long> decIntervals, ArrayList<Long> encIntervals);
     }
 }
