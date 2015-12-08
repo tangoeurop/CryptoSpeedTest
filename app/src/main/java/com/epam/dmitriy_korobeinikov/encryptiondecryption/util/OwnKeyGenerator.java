@@ -1,8 +1,10 @@
-package com.epam.dmitriy_korobeinikov.encryptiondecryption;
+package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;

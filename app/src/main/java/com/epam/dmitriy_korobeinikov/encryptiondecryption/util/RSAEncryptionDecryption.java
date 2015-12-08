@@ -1,9 +1,10 @@
-package com.epam.dmitriy_korobeinikov.encryptiondecryption;
+package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
-import android.util.TimingLogger;
+
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
@@ -31,13 +32,14 @@ public class RSAEncryptionDecryption {
 
     private OwnKeyGenerator mKeyRetriever;
     private Context mContext;
+    private OnCryptingListener mOnCryptingListener;
 
     public RSAEncryptionDecryption(Context context) {
         mContext = context;
         mKeyRetriever = new OwnKeyGenerator(context);
     }
 
-    public void startDecryptionFromResource() {
+    public void startCrypting() {
         try {
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
@@ -65,6 +67,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
+            mOnCryptingListener.onDecryptionCompleted(timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
@@ -83,15 +86,17 @@ public class RSAEncryptionDecryption {
 
             TimeLogger timeLogger = new TimeLogger(TAG, "encryptData()");
             byte[] encryptedData;
+            byte[] dataToEncrypt;
             for (String card : creditCards) {
-                byte[] dataToEncrypt = card.getBytes();
+                dataToEncrypt = card.getBytes();
                 encryptedData = cipher.doFinal(dataToEncrypt);
-                timeLogger.addSplit("encryption compeleted");
+                timeLogger.addSplit("encryption completed");
                 encryptedDataList.add(encryptedData);
                 Log.i(TAG, "Encrypted data: " + Arrays.toString(encryptedData));
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
+            mOnCryptingListener.onEncryptionCompleted(timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
@@ -168,5 +173,14 @@ public class RSAEncryptionDecryption {
             }
         }
         return cards;
+    }
+
+    public void setOnCryptingListener(OnCryptingListener onCryptingListener) {
+        mOnCryptingListener = onCryptingListener;
+    }
+
+    public interface OnCryptingListener {
+        void onEncryptionCompleted(ArrayList<Long> intervals);
+        void onDecryptionCompleted(ArrayList<Long> intervals);
     }
 }

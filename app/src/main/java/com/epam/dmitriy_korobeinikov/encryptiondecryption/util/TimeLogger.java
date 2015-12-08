@@ -1,4 +1,4 @@
-package com.epam.dmitriy_korobeinikov.encryptiondecryption;
+package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
 import android.os.SystemClock;
 import android.util.Log;
