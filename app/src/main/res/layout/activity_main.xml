@@ -4,44 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity"
     >
 
     <TextView
-        android:id="@+id/tvEncryptionLabel"
+        android:id="@+id/tvEncryptionHeader"
+        style="@style/BlackBoldTextView"
         android:layout_width="match_parent"
         android:layout_height="30dp"
+        android:background="@drawable/header_background"
         android:gravity="center"
-        android:text="Шифрование номер Карт"
+        android:text="@string/encryption_card_numbers_header"
         />
 
     <LinearLayout
         android:id="@+id/llEncryptionHeader"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_below="@+id/tvEncryptionLabel"
+        android:layout_below="@+id/tvEncryptionHeader"
+        android:background="@drawable/columns_background"
         >
 
         <TextView
+            style="@style/BlackBoldTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.75"
             android:gravity="center"
-            android:text="Номер Карты"
+            android:text="@string/card_number_label"
             />
 
         <TextView
+            style="@style/BlackBoldTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.25"
             android:gravity="center"
-            android:text="Продолжительность"
+            android:text="@string/duration_label"
             />
 
     </LinearLayout>
@@ -50,41 +51,47 @@
         android:id="@+id/lwEncryptionData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:layout_below="@id/llEncryptionHeader"
         />
 
     <TextView
-        android:id="@+id/tvDecryptionLabel"
+        android:id="@+id/tvDecryptionHeader"
+        style="@style/BlackBoldTextView"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_below="@id/lwEncryptionData"
+        android:background="@drawable/header_background"
         android:gravity="center"
-        android:text="Дешифрование номер Карт"
+        android:text="@string/decryption_card_number_header"
         />
 
     <LinearLayout
         android:id="@+id/llDecryptionHeader"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_below="@+id/tvDecryptionLabel"
+        android:layout_below="@+id/tvDecryptionHeader"
+        android:background="@drawable/columns_background"
         >
 
         <TextView
+            style="@style/BlackBoldTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.75"
             android:gravity="center"
-            android:text="Номер Карты"
+            android:text="@string/card_number_label"
             />
 
         <TextView
+            style="@style/BlackBoldTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.25"
             android:gravity="center"
-            android:text="Продолжительность"
+            android:text="@string/duration_label"
             />
 
     </LinearLayout>
