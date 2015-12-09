@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.os.ResultReceiver;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
@@ -16,7 +17,6 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
 
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_DATE_FORMAT;
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_EXTENSION;
@@ -29,6 +29,7 @@ public class CryptingService extends IntentService {
     private static final String TAG = CryptingService.class.getSimpleName();
     public static final String ARG_CRYPTING_RESULT_RECEIVER = "ARG_CRYPTING_RESULT_RECEIVER";
     public static final String ARG_CRYPTING_INFO = "ARG_CRYPTING_INFO";
+    private static final String CRYPTO_SPEED_TEST_FOLDER_NAME = "CryptoSpeedTest";
 
     public CryptingService() {
         super(TAG);
@@ -49,12 +50,17 @@ public class CryptingService extends IntentService {
         writeDataToFile(cryptingInfo);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void writeDataToFile(CryptingInfo cryptingInfo) {
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        File file = new File(path, getFileName(cryptingInfo));
+        File folder = new File(Environment.getExternalStorageDirectory(), CRYPTO_SPEED_TEST_FOLDER_NAME);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + CRYPTO_SPEED_TEST_FOLDER_NAME, getFileName(cryptingInfo));
         try {
             FileWriter fileWriter = new FileWriter(file);
             CSVWriter csvWriter = new CSVWriter(fileWriter, ',', '\u0000');
+
             String startDate = DateFormat.format(Constants.CSV_ROW_DATE_FORMAT, cryptingInfo.startTime).toString();
             String[] infoRow = new String[3];
             infoRow[0] = startDate;
@@ -65,7 +71,7 @@ public class CryptingService extends IntentService {
             }
             csvWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error during writeDataToFile()", e);
         }
     }
 
