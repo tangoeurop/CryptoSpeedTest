@@ -4,9 +4,23 @@ import android.app.Activity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.os.ResultReceiver;
+import android.text.format.DateFormat;
 
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
+import com.opencsv.CSVWriter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Date;
+
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_DATE_FORMAT;
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_EXTENSION;
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_PREFIX;
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/9/2015.
@@ -26,9 +40,36 @@ public class CryptingService extends IntentService {
         RSAEncryptionDecryption rsaEncryptionDecryption = new RSAEncryptionDecryption(this);
         rsaEncryptionDecryption.startCrypting();
 
+        CryptingInfo cryptingInfo = rsaEncryptionDecryption.getCryptingInfo();
+
         Bundle result = new Bundle();
-        result.putParcelable(ARG_CRYPTING_INFO, rsaEncryptionDecryption.getCryptingInfo());
+        result.putParcelable(ARG_CRYPTING_INFO, cryptingInfo);
 
         cryptingResultReceiver.send(Activity.RESULT_OK, result);
+        writeDataToFile(cryptingInfo);
+    }
+
+    private void writeDataToFile(CryptingInfo cryptingInfo) {
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File file = new File(path, getFileName(cryptingInfo));
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            CSVWriter csvWriter = new CSVWriter(fileWriter, ',', '\u0000');
+            String startDate = DateFormat.format(Constants.CSV_ROW_DATE_FORMAT, cryptingInfo.startTime).toString();
+            String[] infoRow = new String[3];
+            infoRow[0] = startDate;
+            for (int i = 0; i < 10; i++) {
+                infoRow[1] = String.valueOf(cryptingInfo.decryptedIntervals.get(i));
+                infoRow[2] = String.valueOf(cryptingInfo.encryptedIntervals.get(i));
+                csvWriter.writeNext(infoRow);
+            }
+            csvWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getFileName(CryptingInfo cryptingInfo) {
+        return CSV_FILE_NAME_PREFIX + DateFormat.format(CSV_FILE_NAME_DATE_FORMAT, cryptingInfo.startTime) + CSV_FILE_NAME_EXTENSION;
     }
 }

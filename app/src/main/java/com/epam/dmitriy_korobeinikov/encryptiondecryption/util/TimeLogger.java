@@ -37,7 +37,7 @@ public class TimeLogger {
     }
 
     public void addSplit(String splitLabel) {
-        long now = SystemClock.currentThreadTimeMillis();
+        long now = System.currentTimeMillis();
         mSplits.add(now);
         mSplitLabels.add(splitLabel);
     }

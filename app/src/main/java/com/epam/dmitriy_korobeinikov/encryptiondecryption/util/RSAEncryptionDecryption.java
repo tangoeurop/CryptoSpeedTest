@@ -43,7 +43,7 @@ public class RSAEncryptionDecryption {
 
     public void startCrypting() {
         try {
-            mCryptingInfo = new CryptingInfo(SystemClock.currentThreadTimeMillis());
+            mCryptingInfo = new CryptingInfo(System.currentTimeMillis());
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
         } catch (IOException e) {
