@@ -2,11 +2,13 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,13 +18,19 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.session.AccessTokenPair;
+import com.dropbox.client2.session.AppKeyPair;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingIntentService;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,10 +38,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+    private final static String APP_KEY = "vlvd92u9h0s60tf";
+    private final static String APP_SECRET = "e8kllhglzgr20ql";
+    private static final String ACCESS_KEY_NAME = "ACCESS_KEY";
+    private static final String ACCESS_SECRET_NAME = "ACCESS_SECRET";
 
     private BenchmarkAdapter mEncryptedDataAdapter;
     private BenchmarkAdapter mDecryptedDataAdapter;
     private CryptingResultReceiver mResultReceiver;
+
+    private DropboxAPI<AndroidAuthSession> mDBApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +63,39 @@ public class MainActivity extends AppCompatActivity {
         decryptedDataList.setAdapter(mDecryptedDataAdapter);
 
         mResultReceiver = new CryptingResultReceiver(new Handler());
+
+        AndroidAuthSession session = buildSession();
+        mDBApi = new DropboxAPI<>(session);
+        mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AndroidAuthSession session = mDBApi.getSession();
+        if (session.authenticationSuccessful()) {
+            try {
+                // Mandatory call to complete the auth
+                session.finishAuthentication();
+                // Store it locally in our app for later use
+                storeAuth(session);
+            } catch (IllegalStateException e) {
+                Toast.makeText(this, "Couldn't authenticate with Dropbox:" + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error authenticating", e);
+            }
+        }
+    }
+
+    private void storeAuth(AndroidAuthSession session) {
+        // Store the OAuth 2 access token, if there is one.
+        String oauth2AccessToken = session.getOAuth2AccessToken();
+        if (oauth2AccessToken != null) {
+            SharedPreferences prefs = getSharedPreferences(getPackageName(), 0);
+            SharedPreferences.Editor edit = prefs.edit();
+            edit.putString(ACCESS_KEY_NAME, "oauth2:");
+            edit.putString(ACCESS_SECRET_NAME, oauth2AccessToken);
+            edit.commit();
+        }
     }
 
     @Override
@@ -56,6 +103,28 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater menuInflater = new MenuInflater(this);
         menuInflater.inflate(R.menu.main_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private AndroidAuthSession buildSession() {
+        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+        AndroidAuthSession session = new AndroidAuthSession(appKeys);
+        loadAuth(session);
+        return session;
+    }
+
+    private void loadAuth(AndroidAuthSession session) {
+        SharedPreferences prefs = getSharedPreferences(getPackageName(), 0);
+        String key = prefs.getString(getPackageName(), null);
+        String secret = prefs.getString(getPackageName(), null);
+        if (key == null || secret == null || key.length() == 0 || secret.length() == 0) return;
+
+        if (key.equals("oauth2:")) {
+            // If the key is set to "oauth2:", then we can assume the token is for OAuth 2.
+            session.setOAuth2AccessToken(secret);
+        } else {
+            // Still support using old OAuth 1 tokens.
+            session.setAccessTokenPair(new AccessTokenPair(key, secret));
+        }
     }
 
     @Override
@@ -103,6 +172,23 @@ public class MainActivity extends AppCompatActivity {
                 mEncryptedDataAdapter.setIntervals(cryptingInfo.encryptedIntervals);
                 mDecryptedDataAdapter.notifyDataSetChanged();
                 mEncryptedDataAdapter.notifyDataSetChanged();
+            }
+
+            try {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            File file = new File(Environment.getExternalStorageDirectory() + "/" + CryptingIntentService.CRYPTO_SPEED_TEST_FOLDER_NAME, "DropBoxTest.csv");
+                            FileInputStream inputStream = new FileInputStream(file);
+                            DropboxAPI.Entry response = mDBApi.putFile("/DropBoxTest.txt", inputStream, file.length(), null, null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            } catch (Exception e) {
+                Log.e(TAG, "Error during uploading file to DropBox", e);
             }
         }
     }

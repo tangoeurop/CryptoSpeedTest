@@ -34,7 +34,7 @@ public class CryptingIntentService extends IntentService {
     private static final String TAG = CryptingIntentService.class.getSimpleName();
     public static final String ARG_CRYPTING_RESULT_RECEIVER = "ARG_CRYPTING_RESULT_RECEIVER";
     public static final String ARG_CRYPTING_INFO = "ARG_CRYPTING_INFO";
-    private static final String CRYPTO_SPEED_TEST_FOLDER_NAME = "CryptoSpeedTest";
+    public static final String CRYPTO_SPEED_TEST_FOLDER_NAME = "CryptoSpeedTest";
     private static final char CSV_SEPARATOR = ';';
 
     public CryptingIntentService() {
@@ -62,7 +62,7 @@ public class CryptingIntentService extends IntentService {
         if (!folder.exists()) {
             folder.mkdirs();
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + CRYPTO_SPEED_TEST_FOLDER_NAME, getFileName(cryptingInfo));
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + CRYPTO_SPEED_TEST_FOLDER_NAME, "DropBoxTest.csv");
         try {
             FileWriter fileWriter = new FileWriter(file);
             CSVWriter csvWriter = new CSVWriter(fileWriter, CSV_SEPARATOR, '\u0000');
