@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingIntentService;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_play:
-                Intent cryptingIntent = new Intent(this, CryptingService.class);
-                cryptingIntent.putExtra(CryptingService.ARG_CRYPTING_RESULT_RECEIVER, mResultReceiver);
+                Intent cryptingIntent = new Intent(this, CryptingIntentService.class);
+                cryptingIntent.putExtra(CryptingIntentService.ARG_CRYPTING_RESULT_RECEIVER, mResultReceiver);
                 startService(cryptingIntent);
                 return true;
         }
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         @SuppressWarnings("unchecked")
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            CryptingInfo cryptingInfo = resultData.getParcelable(CryptingService.ARG_CRYPTING_INFO);
+            CryptingInfo cryptingInfo = resultData.getParcelable(CryptingIntentService.ARG_CRYPTING_INFO);
             if (cryptingInfo != null) {
                 mDecryptedDataAdapter.setIntervals(cryptingInfo.decryptedIntervals);
                 mEncryptedDataAdapter.setIntervals(cryptingInfo.encryptedIntervals);

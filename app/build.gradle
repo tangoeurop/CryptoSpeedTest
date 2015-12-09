@@ -29,4 +29,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile files('libs/opencsv-3.6.jar')
+    compile 'commons-lang:commons-lang:2.6'
 }
