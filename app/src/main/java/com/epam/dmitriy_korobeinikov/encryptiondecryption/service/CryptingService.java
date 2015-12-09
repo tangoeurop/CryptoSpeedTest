@@ -14,8 +14,7 @@ import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecr
 public class CryptingService extends IntentService {
     private static final String TAG = CryptingService.class.getSimpleName();
     public static final String ARG_CRYPTING_RESULT_RECEIVER = "ARG_CRYPTING_RESULT_RECEIVER";
-    public static final String ARG_DECRYPTED_INTERVALS = "ARG_DECRYPTED_INTERVALS";
-    public static final String ARG_ENCRYPTED_INTERVALS = "ARG_ENCRYPTED_INTERVALS";
+    public static final String ARG_CRYPTING_INFO = "ARG_CRYPTING_INFO";
 
     public CryptingService() {
         super(TAG);
@@ -28,8 +27,7 @@ public class CryptingService extends IntentService {
         rsaEncryptionDecryption.startCrypting();
 
         Bundle result = new Bundle();
-        result.putSerializable(ARG_DECRYPTED_INTERVALS, rsaEncryptionDecryption.getDecryptedIntervals());
-        result.putSerializable(ARG_ENCRYPTED_INTERVALS, rsaEncryptionDecryption.getEncryptedIntervals());
+        result.putParcelable(ARG_CRYPTING_INFO, rsaEncryptionDecryption.getCryptingInfo());
 
         cryptingResultReceiver.send(Activity.RESULT_OK, result);
     }

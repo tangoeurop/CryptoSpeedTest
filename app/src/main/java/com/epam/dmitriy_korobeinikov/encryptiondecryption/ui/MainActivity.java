@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService;
 import com.opencsv.CSVWriter;
 
@@ -26,9 +27,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService.ARG_DECRYPTED_INTERVALS;
-import static com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService.ARG_ENCRYPTED_INTERVALS;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -99,10 +97,13 @@ public class MainActivity extends AppCompatActivity {
         @SuppressWarnings("unchecked")
         @Override
         protected void onReceiveResult(int resultCode, Bundle resultData) {
-            mDecryptedDataAdapter.setIntervals((ArrayList<Long>) resultData.getSerializable(ARG_DECRYPTED_INTERVALS));
-            mEncryptedDataAdapter.setIntervals((ArrayList<Long>) resultData.getSerializable(ARG_ENCRYPTED_INTERVALS));
-            mDecryptedDataAdapter.notifyDataSetChanged();
-            mEncryptedDataAdapter.notifyDataSetChanged();
+            CryptingInfo cryptingInfo = resultData.getParcelable(CryptingService.ARG_CRYPTING_INFO);
+            if (cryptingInfo != null) {
+                mDecryptedDataAdapter.setIntervals(cryptingInfo.decryptedIntervals);
+                mEncryptedDataAdapter.setIntervals(cryptingInfo.encryptedIntervals);
+                mDecryptedDataAdapter.notifyDataSetChanged();
+                mEncryptedDataAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             TextView cardNumber = (TextView) v.findViewById(R.id.tvCardNumber);
             cardNumber.setText(getString(R.string.generic_card_number, position + 1));
             TextView duration = (TextView) v.findViewById(R.id.tvDuration);
-            duration.setText(String.valueOf(mIntervals.get(position)));
+            duration.setText(getString(R.string.duration_time, mIntervals.get(position)));
             return v;
         }
 

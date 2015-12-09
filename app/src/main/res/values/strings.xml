@@ -6,5 +6,6 @@
     <string name="duration_label">Продолжительность</string>
     <string name="decryption_card_number_header">Дешифрование номеров Карт</string>
     <string name="generic_card_number">Карта № %1$d</string>
+    <string name="duration_time">%1$d ms</string>
     <string name="menu_action_start">Start</string>
 </resources>

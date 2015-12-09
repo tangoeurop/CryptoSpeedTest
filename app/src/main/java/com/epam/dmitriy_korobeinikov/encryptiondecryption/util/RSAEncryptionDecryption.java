@@ -2,9 +2,11 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
 import android.content.Context;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 
 import java.io.BufferedOutputStream;
 import java.io.EOFException;
@@ -32,9 +34,7 @@ public class RSAEncryptionDecryption {
 
     private OwnKeyGenerator mKeyRetriever;
     private Context mContext;
-
-    private ArrayList<Long> mDecryptedIntervals;
-    private ArrayList<Long> mEncryptedIntervals;
+    private CryptingInfo mCryptingInfo;
 
     public RSAEncryptionDecryption(Context context) {
         mContext = context;
@@ -43,6 +43,7 @@ public class RSAEncryptionDecryption {
 
     public void startCrypting() {
         try {
+            mCryptingInfo = new CryptingInfo(SystemClock.currentThreadTimeMillis());
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
         } catch (IOException e) {
@@ -69,7 +70,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mDecryptedIntervals = (timeLogger.getIntervals());
+            mCryptingInfo.decryptedIntervals = timeLogger.getIntervals();
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
@@ -98,7 +99,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mEncryptedIntervals = (timeLogger.getIntervals());
+            mCryptingInfo.encryptedIntervals = timeLogger.getIntervals();
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
@@ -179,11 +180,7 @@ public class RSAEncryptionDecryption {
         return cards;
     }
 
-    public ArrayList<Long> getDecryptedIntervals() {
-        return mDecryptedIntervals;
-    }
-
-    public ArrayList<Long> getEncryptedIntervals() {
-        return mEncryptedIntervals;
+    public CryptingInfo getCryptingInfo() {
+        return mCryptingInfo;
     }
 }
