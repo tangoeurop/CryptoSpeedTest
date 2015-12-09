@@ -1,8 +1,11 @@
 package com.epam.dmitriy_korobeinikov.encryptiondecryption.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.support.v4.os.ResultReceiver;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,7 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -24,12 +27,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements RSAEncryptionDecryption.OnCryptingListener {
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService.ARG_DECRYPTED_INTERVALS;
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingService.ARG_ENCRYPTED_INTERVALS;
+
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private BenchmarkAdapter mEncryptedDataAdapter;
     private BenchmarkAdapter mDecryptedDataAdapter;
-    private RSAEncryptionDecryption mRSAEncryptionDecryption;
+    private CryptingResultReceiver mResultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +50,7 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
         encryptedDataList.setAdapter(mEncryptedDataAdapter);
         decryptedDataList.setAdapter(mDecryptedDataAdapter);
 
-        mRSAEncryptionDecryption = new RSAEncryptionDecryption(this);
-        mRSAEncryptionDecryption.setOnCryptingListener(this);
+        mResultReceiver = new CryptingResultReceiver(new Handler());
     }
 
     @Override
@@ -59,19 +64,12 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_play:
-                mRSAEncryptionDecryption.startCrypting();
-                writeToFile();
+                Intent cryptingIntent = new Intent(this, CryptingService.class);
+                cryptingIntent.putExtra(CryptingService.ARG_CRYPTING_RESULT_RECEIVER, mResultReceiver);
+                startService(cryptingIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCryptingCompleted(ArrayList<Long> decIntervals, ArrayList<Long> encIntervals) {
-        mDecryptedDataAdapter.setIntervals(decIntervals);
-        mDecryptedDataAdapter.notifyDataSetChanged();
-        mEncryptedDataAdapter.setIntervals(encIntervals);
-        mEncryptedDataAdapter.notifyDataSetChanged();
     }
 
     public void writeToFile() {
@@ -89,6 +87,22 @@ public class MainActivity extends AppCompatActivity implements RSAEncryptionDecr
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class CryptingResultReceiver extends ResultReceiver {
+
+        public CryptingResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            mDecryptedDataAdapter.setIntervals((ArrayList<Long>) resultData.getSerializable(ARG_DECRYPTED_INTERVALS));
+            mEncryptedDataAdapter.setIntervals((ArrayList<Long>) resultData.getSerializable(ARG_ENCRYPTED_INTERVALS));
+            mDecryptedDataAdapter.notifyDataSetChanged();
+            mEncryptedDataAdapter.notifyDataSetChanged();
         }
     }
 

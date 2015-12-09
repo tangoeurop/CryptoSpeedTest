@@ -32,10 +32,9 @@ public class RSAEncryptionDecryption {
 
     private OwnKeyGenerator mKeyRetriever;
     private Context mContext;
-    private OnCryptingListener mOnCryptingListener;
 
-    private ArrayList<Long> mDecryptedDataList;
-    private ArrayList<Long> mEncryptedDataList;
+    private ArrayList<Long> mDecryptedIntervals;
+    private ArrayList<Long> mEncryptedIntervals;
 
     public RSAEncryptionDecryption(Context context) {
         mContext = context;
@@ -46,7 +45,6 @@ public class RSAEncryptionDecryption {
         try {
             ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
             encryptData(decryptCards);
-            mOnCryptingListener.onCryptingCompleted(mDecryptedDataList, mEncryptedDataList);
         } catch (IOException e) {
             Log.e(TAG, "Error during startDecryptionFromResource()", e);
         }
@@ -71,7 +69,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mDecryptedDataList = (timeLogger.getIntervals());
+            mDecryptedIntervals = (timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during decryptData()", e);
@@ -100,7 +98,7 @@ public class RSAEncryptionDecryption {
             }
             Log.i(TAG, "----------------ENCRYPTION COMPLETED------------");
             timeLogger.dumpToLog();
-            mEncryptedDataList = (timeLogger.getIntervals());
+            mEncryptedIntervals = (timeLogger.getIntervals());
 
         } catch (Exception e) {
             Log.e(TAG, "Error during encryptData()", e);
@@ -129,6 +127,7 @@ public class RSAEncryptionDecryption {
         }
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     public ArrayList<byte[]> readCreditCardsFromEncryptedFile() throws IOException {
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File file = new File(path, "CreditCards.txt");
@@ -155,6 +154,7 @@ public class RSAEncryptionDecryption {
         return cards;
     }
 
+    @SuppressWarnings("InfiniteLoopStatement")
     public ArrayList<byte[]> readEncryptedCreditCardsFromResource() throws IOException {
         InputStream is = null;
         ObjectInputStream ois = null;
@@ -179,11 +179,11 @@ public class RSAEncryptionDecryption {
         return cards;
     }
 
-    public void setOnCryptingListener(OnCryptingListener onCryptingListener) {
-        mOnCryptingListener = onCryptingListener;
+    public ArrayList<Long> getDecryptedIntervals() {
+        return mDecryptedIntervals;
     }
 
-    public interface OnCryptingListener {
-        void onCryptingCompleted(ArrayList<Long> decIntervals, ArrayList<Long> encIntervals);
+    public ArrayList<Long> getEncryptedIntervals() {
+        return mEncryptedIntervals;
     }
 }
