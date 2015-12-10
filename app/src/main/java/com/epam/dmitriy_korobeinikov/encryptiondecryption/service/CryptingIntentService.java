@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
 
@@ -75,6 +76,7 @@ public class CryptingIntentService extends IntentService {
 
     private String composeResultData(CryptingInfo cryptingInfo) {
         StringBuilder sb = new StringBuilder();
+        sb.append(Constants.CSV_FILE_HEADER);
         String[] infoRow = new String[6];
         fillConstantParameters(cryptingInfo, infoRow);
         for (int x = 0; x < 10; x++) {

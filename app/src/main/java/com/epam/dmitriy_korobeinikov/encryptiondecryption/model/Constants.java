@@ -10,4 +10,5 @@ public class Constants {
     public static final String CSV_FILE_NAME_DATE_FORMAT = "yyyy-MM-dd_HH-mm-ss";
     public static final String CSV_FILE_NAME_PREFIX = "decrypt_";
     public static final String CSV_FILE_NAME_EXTENSION = ".csv";
+    public static final String CSV_FILE_HEADER = "Date;decrypt_time;encrypt_time;marka;model;imei\n";
 }
