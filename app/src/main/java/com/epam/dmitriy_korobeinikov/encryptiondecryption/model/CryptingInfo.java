@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/9/2015.
+ * Holds benchmark data after encryption/decryption process
  */
 
 public class CryptingInfo implements Parcelable {

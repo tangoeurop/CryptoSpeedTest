@@ -1,27 +1,19 @@
 package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
 import android.content.Context;
-import android.os.Environment;
-import android.os.SystemClock;
 import android.util.Log;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 
-import java.io.BufferedOutputStream;
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import javax.crypto.Cipher;
 
@@ -105,54 +97,6 @@ public class RSAEncryptionDecryption {
             Log.e(TAG, "Error during encryptData()", e);
         }
         return encryptedDataList;
-    }
-
-    public void saveCreditCardsToEncryptedFile(LinkedList<byte[]> creditCards) throws IOException {
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(path, "CreditCards.txt");
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
-        try {
-            fos = new FileOutputStream(file);
-            oos = new ObjectOutputStream(new BufferedOutputStream(fos));
-            for (byte[] card : creditCards) {
-                oos.writeObject(card);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (oos != null) {
-                oos.close();
-                fos.close();
-            }
-        }
-    }
-
-    @SuppressWarnings("InfiniteLoopStatement")
-    public ArrayList<byte[]> readCreditCardsFromEncryptedFile() throws IOException {
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File file = new File(path, "CreditCards.txt");
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        ArrayList<byte[]> cards = new ArrayList<>();
-        try {
-            fis = new FileInputStream(file);
-            ois = new ObjectInputStream(fis);
-
-            while (true) {
-                cards.add((byte[]) ois.readObject());
-            }
-        } catch (EOFException e) {
-            return cards;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (ois != null) {
-                ois.close();
-                fis.close();
-            }
-        }
-        return cards;
     }
 
     @SuppressWarnings("InfiniteLoopStatement")

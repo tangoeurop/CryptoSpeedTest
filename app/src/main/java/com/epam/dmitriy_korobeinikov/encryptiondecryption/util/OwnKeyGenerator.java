@@ -21,6 +21,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/7/2015.
+ * Generates public and private key from resources. The public key is taken from keystore certificate, private key is taken from PEM.
  */
 public class OwnKeyGenerator {
     private static final String TAG = OwnKeyGenerator.class.getSimpleName();

@@ -2,6 +2,7 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption.model;
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/9/2015.
+ * Holds basic constants
  */
 public class Constants {
     public static final String CSV_ROW_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

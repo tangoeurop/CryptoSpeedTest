@@ -29,6 +29,7 @@ import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.DropBoxAp
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/9/2015.
+ * Performs encryption/decryption process in the background thread. Uploads benchmark data to DropBox.
  */
 public class CryptingIntentService extends IntentService {
     private static final String TAG = CryptingIntentService.class.getSimpleName();

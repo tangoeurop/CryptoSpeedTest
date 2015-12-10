@@ -1,12 +1,12 @@
 package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.ArrayList;
 
 /**
  * Created by Dmitriy_Korobeinikov on 12/8/2015.
+ * Helps to make time logging in convenient way.
  */
 public class TimeLogger {
 
@@ -57,7 +57,7 @@ public class TimeLogger {
     }
 
     public ArrayList<Long> getIntervals() {
-       ArrayList<Long> intervals = new ArrayList<>();
+        ArrayList<Long> intervals = new ArrayList<>();
         long now;
         for (int i = 1; i < mSplits.size(); i++) {
             now = mSplits.get(i);
@@ -65,14 +65,6 @@ public class TimeLogger {
             intervals.add(now - prev);
         }
         return intervals;
-    }
-
-    public long getTotalTime() {
-        long totalTime = 0;
-        for (long interval : getIntervals()) {
-            totalTime +=interval;
-        }
-        return totalTime;
     }
 }
 
