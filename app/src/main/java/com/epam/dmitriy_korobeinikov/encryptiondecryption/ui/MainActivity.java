@@ -41,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private BenchmarkAdapter mDecryptedDataAdapter;
     private CryptingResultReceiver mResultReceiver;
 
+    private boolean isDataReceived;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showAppropriateViews() {
+        findViewById(R.id.tvEncryptionHeader).setVisibility(View.VISIBLE);
+        findViewById(R.id.tvDecryptionHeader).setVisibility(View.VISIBLE);
+        findViewById(R.id.llDecryptionColumns).setVisibility(View.VISIBLE);
+        findViewById(R.id.llEncryptionColumns).setVisibility(View.VISIBLE);
+        findViewById(R.id.tvTip).setVisibility(View.GONE);
+    }
+
     private class CryptingResultReceiver extends ResultReceiver {
 
         public CryptingResultReceiver(Handler handler) {
@@ -139,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
             if (cryptingInfo != null) {
                 mDecryptedDataAdapter.updateIntervals(cryptingInfo.decryptedIntervals);
                 mEncryptedDataAdapter.updateIntervals(cryptingInfo.encryptedIntervals);
+                if (!isDataReceived) {
+                    showAppropriateViews();
+                    isDataReceived = true;
+                }
             }
         }
     }

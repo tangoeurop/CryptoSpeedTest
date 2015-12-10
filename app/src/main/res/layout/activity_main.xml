@@ -15,14 +15,19 @@
         android:background="@drawable/header_background"
         android:gravity="center"
         android:text="@string/encryption_card_numbers_header"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <LinearLayout
-        android:id="@+id/llEncryptionHeader"
+        android:id="@+id/llEncryptionColumns"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_below="@+id/tvEncryptionHeader"
         android:background="@drawable/columns_background"
+        android:visibility="gone"
+        tools:visibility="visible"
+
         >
 
         <TextView
@@ -51,8 +56,8 @@
         android:id="@+id/lwEncryptionData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:layout_below="@id/llEncryptionHeader"
+        android:layout_below="@id/llEncryptionColumns"
+        tools:visibility="gone"
         />
 
     <TextView
@@ -64,14 +69,18 @@
         android:background="@drawable/header_background"
         android:gravity="center"
         android:text="@string/decryption_card_number_header"
+        android:visibility="gone"
+        tools:visibility="visible"
         />
 
     <LinearLayout
-        android:id="@+id/llDecryptionHeader"
+        android:id="@+id/llDecryptionColumns"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_below="@+id/tvDecryptionHeader"
         android:background="@drawable/columns_background"
+        android:visibility="gone"
+        tools:visibility="visible"
         >
 
         <TextView
@@ -100,6 +109,16 @@
         android:id="@+id/lwDecryptionData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/llDecryptionHeader"
+        android:layout_below="@+id/llDecryptionColumns"
+        tools:visibility="gone"
+        />
+
+    <TextView
+        android:id="@+id/tvTip"
+        style="@style/BlackBoldTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/tip_text"
         />
 </RelativeLayout>
