@@ -7,22 +7,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.os.ResultReceiver;
 import android.telephony.TelephonyManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_DATE_FORMAT;
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_EXTENSION;
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_FILE_NAME_PREFIX;
+import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_ROW_DATE_FORMAT;
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants.CSV_ROW_TIME_FORMAT;
 import static com.epam.dmitriy_korobeinikov.encryptiondecryption.model.DropBoxApiSingleton.getInstance;
 
@@ -85,12 +86,14 @@ public class CryptingIntentService extends IntentService {
     }
 
     private String getFileName(CryptingInfo cryptingInfo) {
-        return CSV_FILE_NAME_PREFIX + DateFormat.format(CSV_FILE_NAME_DATE_FORMAT, cryptingInfo.startTime) + CSV_FILE_NAME_EXTENSION;
+        SimpleDateFormat dateFormat = new SimpleDateFormat(CSV_FILE_NAME_DATE_FORMAT);
+        return CSV_FILE_NAME_PREFIX + dateFormat.format(new Date(cryptingInfo.startTime)) + CSV_FILE_NAME_EXTENSION;
     }
 
     private void fillConstantParameters(CryptingInfo cryptingInfo, String[] dataRow) {
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        String startDate = DateFormat.format(Constants.CSV_ROW_DATE_FORMAT, cryptingInfo.startTime).toString();
+        SimpleDateFormat dateFormat = new SimpleDateFormat(CSV_ROW_DATE_FORMAT);
+        String startDate = dateFormat.format(cryptingInfo.startTime);
         dataRow[0] = startDate;
         dataRow[3] = Build.MANUFACTURER;
         dataRow[4] = Build.MODEL;
