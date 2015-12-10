@@ -2,12 +2,15 @@ package com.epam.dmitriy_korobeinikov.encryptiondecryption.service;
 
 import android.app.Activity;
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
@@ -37,8 +40,11 @@ public class CryptingIntentService extends IntentService {
     public static final String ARG_CRYPTING_INFO = "ARG_CRYPTING_INFO";
     private static final char CSV_SEPARATOR = ';';
 
+    private Handler mHandler;
+
     public CryptingIntentService() {
         super(TAG);
+        mHandler = new Handler();
     }
 
     @Override
@@ -61,7 +67,7 @@ public class CryptingIntentService extends IntentService {
             String resultData = composeResultData(cryptingInfo);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(resultData.getBytes());
             DropboxAPI.Entry response = getInstance().DBApi.putFile("/" + getFileName(cryptingInfo), inputStream, resultData.length(), null, null);
-            Log.i(TAG, "File was successfully uploaded: " + response.path);
+            mHandler.post(new DisplayToast(this, "File was successfully uploaded: " + response.path));
         } catch (DropboxException e) {
             Log.e(TAG, "Error during .putDataToDropBox()", e);
         }
@@ -99,5 +105,19 @@ public class CryptingIntentService extends IntentService {
         dataRow[3] = Build.MANUFACTURER;
         dataRow[4] = Build.MODEL;
         dataRow[5] = telephonyManager.getDeviceId();
+    }
+
+    private class DisplayToast implements Runnable {
+        private final Context mContext;
+        String mText;
+
+        public DisplayToast(Context context, String text) {
+            this.mContext = context;
+            mText = text;
+        }
+
+        public void run() {
+            Toast.makeText(mContext, mText, Toast.LENGTH_LONG).show();
+        }
     }
 }
