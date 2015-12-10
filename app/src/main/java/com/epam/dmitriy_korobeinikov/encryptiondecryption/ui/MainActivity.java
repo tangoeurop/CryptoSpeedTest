@@ -14,7 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         ListView encryptedDataList = (ListView) findViewById(R.id.lwEncryptionData);
         ListView decryptedDataList = (ListView) findViewById(R.id.lwDecryptionData);
-        mEncryptedDataAdapter = new BenchmarkAdapter(this, null);
-        mDecryptedDataAdapter = new BenchmarkAdapter(this, null);
+        mEncryptedDataAdapter = new BenchmarkAdapter(this, new ArrayList<Long>());
+        mDecryptedDataAdapter = new BenchmarkAdapter(this, new ArrayList<Long>());
 
         encryptedDataList.setAdapter(mEncryptedDataAdapter);
         decryptedDataList.setAdapter(mDecryptedDataAdapter);
@@ -137,20 +137,17 @@ public class MainActivity extends AppCompatActivity {
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             CryptingInfo cryptingInfo = resultData.getParcelable(CryptingIntentService.ARG_CRYPTING_INFO);
             if (cryptingInfo != null) {
-                mDecryptedDataAdapter.setIntervals(cryptingInfo.decryptedIntervals);
-                mEncryptedDataAdapter.setIntervals(cryptingInfo.encryptedIntervals);
-                mDecryptedDataAdapter.notifyDataSetChanged();
-                mEncryptedDataAdapter.notifyDataSetChanged();
+                mDecryptedDataAdapter.updateIntervals(cryptingInfo.decryptedIntervals);
+                mEncryptedDataAdapter.updateIntervals(cryptingInfo.encryptedIntervals);
             }
         }
     }
 
-    private class BenchmarkAdapter extends ArrayAdapter<Long> {
+    private class BenchmarkAdapter extends BaseAdapter {
         private ArrayList<Long> mIntervals;
         private LayoutInflater mInflater;
 
         public BenchmarkAdapter(Context context, ArrayList<Long> objects) {
-            super(context, 0, objects);
             mIntervals = objects;
             mInflater = LayoutInflater.from(context);
         }
@@ -170,14 +167,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            if (mIntervals != null) {
-                return mIntervals.size();
-            }
-            return 0;
+            return mIntervals.size();
         }
 
-        public void setIntervals(ArrayList<Long> intervals) {
-            mIntervals = intervals;
+        @Override
+        public Object getItem(int position) {
+            return mIntervals.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public void updateIntervals(ArrayList<Long> intervals) {
+            mIntervals.clear();
+            mIntervals.addAll(intervals);
+            this.notifyDataSetChanged();
         }
     }
 }
