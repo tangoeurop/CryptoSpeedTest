@@ -8,11 +8,16 @@ import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -76,5 +81,26 @@ public class OwnKeyGenerator {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public KeyPair getKeyPair() throws Exception {
+        InputStream is = mContext.getResources().openRawResource(R.raw.sha_256_rsa_2048);
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keystore.load(is, "android".toCharArray());
+
+        String alias = "business";
+
+        Key key = keystore.getKey(alias, "android".toCharArray());
+        if (key instanceof PrivateKey) {
+            // Get certificate of public key
+            Certificate cert = keystore.getCertificate(alias);
+
+            // Get public key
+            PublicKey publicKey = cert.getPublicKey();
+
+            // Return a key pair
+            return new KeyPair(publicKey, (PrivateKey) key);
+        }
+        return null;
     }
 }

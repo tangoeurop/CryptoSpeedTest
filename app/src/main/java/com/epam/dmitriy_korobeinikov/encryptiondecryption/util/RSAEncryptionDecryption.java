@@ -14,6 +14,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.crypto.Cipher;
 
@@ -28,54 +29,27 @@ public class RSAEncryptionDecryption {
     private Context mContext;
     private CryptingInfo mCryptingInfo;
 
+    private String[] creditCards = {"4485872600441719", "4716319930319174", "4024007103826169", "4916169588657609", "4014735555784856",
+            "4916090704447552", "4485364917348258", "4916971584452871", "4929087640101710", "4485355147668275"};
+
     public RSAEncryptionDecryption(Context context) {
         mContext = context;
         mKeyRetriever = new OwnKeyGenerator(context);
     }
 
     public void startCrypting() {
-        try {
-            mCryptingInfo = new CryptingInfo(System.currentTimeMillis());
-            ArrayList<String> decryptCards = decryptData(readEncryptedCreditCardsFromResource());
-            encryptData(decryptCards);
-        } catch (IOException e) {
-            Log.e(TAG, "Error during startCrypting()", e);
-        }
+        mCryptingInfo = new CryptingInfo(System.currentTimeMillis());
+        List<String> cards = Arrays.asList(creditCards);
+        ArrayList<byte[]> encryptData = encryptData(cards);
+        ArrayList<String> decryptCards = decryptData(encryptData);
     }
 
-    private ArrayList<String> decryptData(ArrayList<byte[]> encryptedCards) {
-        Log.i(TAG, "----------------DECRYPTION STARTED------------");
-
-        ArrayList<String> decryptedCards = new ArrayList<>();
-        try {
-            PublicKey key = mKeyRetriever.getPublicKey();
-            Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.DECRYPT_MODE, key);
-
-            TimeLogger timeLogger = new TimeLogger(TAG, "decryptData()");
-            byte[] decryptedData;
-            for (byte[] card : encryptedCards) {
-                decryptedData = cipher.doFinal(card);
-                timeLogger.addSplit("decryption completed");
-                decryptedCards.add(new String(decryptedData));
-                Log.i(TAG, "Decrypted Data: " + new String(decryptedData));
-            }
-            Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
-            timeLogger.dumpToLog();
-            mCryptingInfo.decryptedIntervals = timeLogger.getIntervals();
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error during decryptData()", e);
-        }
-        return decryptedCards;
-    }
-
-    private ArrayList<byte[]> encryptData(ArrayList<String> creditCards) {
+    private ArrayList<byte[]> encryptData(List<String> creditCards) {
         Log.i(TAG, "----------------ENCRYPTION STARTED------------");
 
         ArrayList<byte[]> encryptedDataList = new ArrayList<>();
         try {
-            PrivateKey key = mKeyRetriever.getPrivateKey();
+            PublicKey key = mKeyRetriever.getKeyPair().getPublic();
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
@@ -97,6 +71,33 @@ public class RSAEncryptionDecryption {
             Log.e(TAG, "Error during encryptData()", e);
         }
         return encryptedDataList;
+    }
+
+    private ArrayList<String> decryptData(ArrayList<byte[]> encryptedCards) {
+        Log.i(TAG, "----------------DECRYPTION STARTED------------");
+
+        ArrayList<String> decryptedCards = new ArrayList<>();
+        try {
+            PrivateKey key = mKeyRetriever.getKeyPair().getPrivate();
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+
+            TimeLogger timeLogger = new TimeLogger(TAG, "decryptData()");
+            byte[] decryptedData;
+            for (byte[] card : encryptedCards) {
+                decryptedData = cipher.doFinal(card);
+                timeLogger.addSplit("decryption completed");
+                decryptedCards.add(new String(decryptedData));
+                Log.i(TAG, "Decrypted Data: " + new String(decryptedData));
+            }
+            Log.i(TAG, "----------------DECRYPTION COMPLETED------------");
+            timeLogger.dumpToLog();
+            mCryptingInfo.decryptedIntervals = timeLogger.getIntervals();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error during decryptData()", e);
+        }
+        return decryptedCards;
     }
 
     @SuppressWarnings("InfiniteLoopStatement")

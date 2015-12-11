@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.telephony.TelephonyManager;
@@ -21,6 +22,9 @@ import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecr
 import org.apache.commons.lang.time.DurationFormatUtils;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -60,7 +64,8 @@ public class CryptingIntentService extends IntentService {
         result.putParcelable(ARG_CRYPTING_INFO, cryptingInfo);
         cryptingResultReceiver.send(Activity.RESULT_OK, result);
 
-        putDataToDropBox(cryptingInfo);
+//        putDataToDropBox(cryptingInfo);
+//        getKeyStoreFromDropBox();
     }
 
     private void putDataToDropBox(CryptingInfo cryptingInfo) {
@@ -71,6 +76,17 @@ public class CryptingIntentService extends IntentService {
             mHandler.post(new DisplayToast(this, "File was successfully uploaded: " + response.path));
         } catch (DropboxException e) {
             Log.e(TAG, "Error during .putDataToDropBox()", e);
+        }
+    }
+
+    private void getKeyStoreFromDropBox() {
+        File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "crypto.txt");
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            DropboxAPI.DropboxFileInfo info = getInstance().DBApi.getFile("/crypto.txt", null, fos, null);
+            Log.i("DbExampleLog", "The file's rev is: " + info.getMetadata().rev);
+        } catch (FileNotFoundException | DropboxException e) {
+            e.printStackTrace();
         }
     }
 
