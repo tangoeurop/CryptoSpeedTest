@@ -5,19 +5,15 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.Key;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -28,14 +24,27 @@ import java.security.spec.PKCS8EncodedKeySpec;
  * Created by Dmitriy_Korobeinikov on 12/7/2015.
  * Generates public and private key from resources. The public key is taken from keystore certificate, private key is taken from PEM.
  */
-public class OwnKeyGenerator {
-    private static final String TAG = OwnKeyGenerator.class.getSimpleName();
+public class JKSKeyProducer implements KeyProducer {
+    private static final String TAG = JKSKeyProducer.class.getSimpleName();
     private Context mContext;
 
-    public OwnKeyGenerator(Context context) {
+    public JKSKeyProducer(Context context) {
         mContext = context;
     }
 
+    @Override
+    public PublicKey getPublicKey() {
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            X509Certificate certificate = (X509Certificate) factory.generateCertificate(mContext.getResources().openRawResource(R.raw.dk));
+            return certificate.getPublicKey();
+        } catch (CertificateException e) {
+            Log.e(TAG, "Error during getPublicKey()", e);
+        }
+        return null;
+    }
+
+    @Override
     public PrivateKey getPrivateKey() {
         byte[] encoded = Base64.decode(readPrivateKeyPem(), Base64.DEFAULT);
         PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(encoded);
@@ -49,15 +58,9 @@ public class OwnKeyGenerator {
         return privateKey;
     }
 
-    public PublicKey getPublicKey() {
-        try {
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate certificate = (X509Certificate) factory.generateCertificate(mContext.getResources().openRawResource(R.raw.dk));
-            return certificate.getPublicKey();
-        } catch (CertificateException e) {
-            Log.e(TAG, "Error during getPublicKey()", e);
-        }
-        return null;
+    @Override
+    public String getKeystoreType() {
+        return Constants.JKS_KEYSTORE_TYPE;
     }
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
@@ -81,26 +84,5 @@ public class OwnKeyGenerator {
             }
         }
         return stringBuilder.toString();
-    }
-
-    public KeyPair getKeyPair() throws Exception {
-        InputStream is = mContext.getResources().openRawResource(R.raw.sha_256_rsa_2048);
-        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keystore.load(is, "android".toCharArray());
-
-        String alias = "business";
-
-        Key key = keystore.getKey(alias, "android".toCharArray());
-        if (key instanceof PrivateKey) {
-            // Get certificate of public key
-            Certificate cert = keystore.getCertificate(alias);
-
-            // Get public key
-            PublicKey publicKey = cert.getPublicKey();
-
-            // Return a key pair
-            return new KeyPair(publicKey, (PrivateKey) key);
-        }
-        return null;
     }
 }

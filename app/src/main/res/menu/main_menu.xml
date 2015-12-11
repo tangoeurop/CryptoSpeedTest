@@ -3,9 +3,16 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <item
-        android:id="@+id/action_play"
+        android:id="@+id/action_jks_start"
         android:icon="@drawable/ic_start"
-        android:title="@string/menu_action_start"
+        android:title="@string/menu_action_jks_start"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/action_bks_start"
+        android:icon="@drawable/ic_start"
+        android:title="@string/menu_action_bks_start"
         app:showAsAction="ifRoom"
         />
 

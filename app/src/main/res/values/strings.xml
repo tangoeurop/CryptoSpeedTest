@@ -7,6 +7,7 @@
     <string name="decryption_card_number_header">Дешифрование номеров Карт</string>
     <string name="generic_card_number">Карта № %1$d</string>
     <string name="duration_time">%1$d ms</string>
-    <string name="menu_action_start">Start</string>
+    <string name="menu_action_jks_start">Start JKS</string>
+    <string name="menu_action_bks_start">Start BKS</string>
     <string name="tip_text">Нажмите кнопку Start из меню</string>
 </resources>

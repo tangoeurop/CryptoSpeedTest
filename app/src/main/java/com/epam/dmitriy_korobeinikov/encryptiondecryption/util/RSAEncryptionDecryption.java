@@ -14,7 +14,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.crypto.Cipher;
 
@@ -25,31 +24,31 @@ import javax.crypto.Cipher;
 public class RSAEncryptionDecryption {
     private static final String TAG = RSAEncryptionDecryption.class.getSimpleName();
 
-    private OwnKeyGenerator mKeyRetriever;
+    private KeyProducer mKeyProducer;
     private Context mContext;
     private CryptingInfo mCryptingInfo;
 
-    private String[] creditCards = {"4485872600441719", "4716319930319174", "4024007103826169", "4916169588657609", "4014735555784856",
-            "4916090704447552", "4485364917348258", "4916971584452871", "4929087640101710", "4485355147668275"};
+    private String[] creditCards = {"4485872600441719", "4716319930319174", "4024007103826169", "4916169588657609",
+            "4014735555784856", "4916090704447552", "4485364917348258", "4916971584452871", "4929087640101710", "4485355147668275"};
 
-    public RSAEncryptionDecryption(Context context) {
+    public RSAEncryptionDecryption(Context context, KeyProducer keyProducer) {
         mContext = context;
-        mKeyRetriever = new OwnKeyGenerator(context);
+        mKeyProducer = keyProducer;
     }
 
     public void startCrypting() {
         mCryptingInfo = new CryptingInfo(System.currentTimeMillis());
-        List<String> cards = Arrays.asList(creditCards);
-        ArrayList<byte[]> encryptData = encryptData(cards);
-        ArrayList<String> decryptCards = decryptData(encryptData);
+        mCryptingInfo.keystoreType = mKeyProducer.getKeystoreType();
+        ArrayList<byte[]> encryptData = encryptData(creditCards);
+        decryptData(encryptData);
     }
 
-    private ArrayList<byte[]> encryptData(List<String> creditCards) {
+    private ArrayList<byte[]> encryptData(String[] creditCards) {
         Log.i(TAG, "----------------ENCRYPTION STARTED------------");
 
         ArrayList<byte[]> encryptedDataList = new ArrayList<>();
         try {
-            PublicKey key = mKeyRetriever.getKeyPair().getPublic();
+            PublicKey key = mKeyProducer.getPublicKey();
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, key);
 
@@ -78,7 +77,7 @@ public class RSAEncryptionDecryption {
 
         ArrayList<String> decryptedCards = new ArrayList<>();
         try {
-            PrivateKey key = mKeyRetriever.getKeyPair().getPrivate();
+            PrivateKey key = mKeyProducer.getPrivateKey();
             Cipher cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.DECRYPT_MODE, key);
 

@@ -15,6 +15,7 @@ public class CryptingInfo implements Parcelable {
     public long startTime;
     public ArrayList<Long> decryptedIntervals;
     public ArrayList<Long> encryptedIntervals;
+    public String keystoreType;
 
     public CryptingInfo(long startTime) {
         this.startTime = startTime;

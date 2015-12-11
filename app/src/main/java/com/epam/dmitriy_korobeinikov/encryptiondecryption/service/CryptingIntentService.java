@@ -17,6 +17,9 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.BKSKeyProducer;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.JKSKeyProducer;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.KeyProducer;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -43,6 +46,7 @@ public class CryptingIntentService extends IntentService {
     private static final String TAG = CryptingIntentService.class.getSimpleName();
     public static final String ARG_CRYPTING_RESULT_RECEIVER = "ARG_CRYPTING_RESULT_RECEIVER";
     public static final String ARG_CRYPTING_INFO = "ARG_CRYPTING_INFO";
+    public static final String ARG_KEYSTORE_TYPE = "ARG_KEY_PRODUCER_TYPE";
     private static final char CSV_SEPARATOR = ';';
 
     private Handler mHandler;
@@ -55,7 +59,7 @@ public class CryptingIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ResultReceiver cryptingResultReceiver = intent.getParcelableExtra(ARG_CRYPTING_RESULT_RECEIVER);
-        RSAEncryptionDecryption rsaEncryptionDecryption = new RSAEncryptionDecryption(this);
+        RSAEncryptionDecryption rsaEncryptionDecryption = new RSAEncryptionDecryption(this, getKeyProducer(intent));
         rsaEncryptionDecryption.startCrypting();
 
         CryptingInfo cryptingInfo = rsaEncryptionDecryption.getCryptingInfo();
@@ -66,6 +70,19 @@ public class CryptingIntentService extends IntentService {
 
 //        putDataToDropBox(cryptingInfo);
 //        getKeyStoreFromDropBox();
+    }
+
+    private KeyProducer getKeyProducer(Intent intent) {
+        KeyProducer keyProducer = null;
+        switch (intent.getStringExtra(ARG_KEYSTORE_TYPE)) {
+            case Constants.JKS_KEYSTORE_TYPE:
+                keyProducer = new JKSKeyProducer(this);
+                break;
+            case Constants.BKS_KEYSTORE_TYPE:
+                keyProducer = new BKSKeyProducer(this);
+                break;
+        }
+        return keyProducer;
     }
 
     private void putDataToDropBox(CryptingInfo cryptingInfo) {
@@ -93,7 +110,7 @@ public class CryptingIntentService extends IntentService {
     private String composeResultData(CryptingInfo cryptingInfo) {
         StringBuilder sb = new StringBuilder();
         sb.append(Constants.CSV_FILE_HEADER);
-        String[] infoRow = new String[6];
+        String[] infoRow = new String[7];
         fillConstantParameters(cryptingInfo, infoRow);
         for (int x = 0; x < 10; x++) {
             infoRow[1] = DurationFormatUtils.formatDuration(cryptingInfo.decryptedIntervals.get(x), CSV_ROW_TIME_FORMAT);
@@ -112,7 +129,7 @@ public class CryptingIntentService extends IntentService {
 
     private String getFileName(CryptingInfo cryptingInfo) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(CSV_FILE_NAME_DATE_FORMAT);
-        return CSV_FILE_NAME_PREFIX + dateFormat.format(new Date(cryptingInfo.startTime)) + CSV_FILE_NAME_EXTENSION;
+        return Build.MANUFACTURER + "_" + Build.MODEL + "_" + CSV_FILE_NAME_PREFIX + dateFormat.format(new Date(cryptingInfo.startTime)) + CSV_FILE_NAME_EXTENSION;
     }
 
     private void fillConstantParameters(CryptingInfo cryptingInfo, String[] dataRow) {
@@ -123,6 +140,7 @@ public class CryptingIntentService extends IntentService {
         dataRow[3] = Build.MANUFACTURER;
         dataRow[4] = Build.MODEL;
         dataRow[5] = telephonyManager.getDeviceId();
+        dataRow[6] = cryptingInfo.keystoreType;
     }
 
     private class DisplayToast implements Runnable {

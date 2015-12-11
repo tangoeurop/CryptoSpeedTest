@@ -23,6 +23,7 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.session.AppKeyPair;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.R;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.service.CryptingIntentService;
 
@@ -89,13 +90,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_play:
-                Intent cryptingIntent = new Intent(this, CryptingIntentService.class);
-                cryptingIntent.putExtra(CryptingIntentService.ARG_CRYPTING_RESULT_RECEIVER, mResultReceiver);
-                startService(cryptingIntent);
+            case R.id.action_jks_start:
+                startCryptingService(Constants.JKS_KEYSTORE_TYPE);
+                return true;
+            case R.id.action_bks_start:
+                startCryptingService(Constants.BKS_KEYSTORE_TYPE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startCryptingService(String keystoreType) {
+        Intent cryptingIntent = new Intent(this, CryptingIntentService.class);
+        cryptingIntent.putExtra(CryptingIntentService.ARG_KEYSTORE_TYPE, keystoreType);
+        cryptingIntent.putExtra(CryptingIntentService.ARG_CRYPTING_RESULT_RECEIVER, mResultReceiver);
+        startService(cryptingIntent);
     }
 
     private AndroidAuthSession buildSession() {
