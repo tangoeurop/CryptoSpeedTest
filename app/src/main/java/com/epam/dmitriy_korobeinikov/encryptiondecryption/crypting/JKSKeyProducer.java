@@ -36,7 +36,7 @@ public class JKSKeyProducer implements KeyProducer {
     public PublicKey getPublicKey() {
         try {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate certificate = (X509Certificate) factory.generateCertificate(mContext.getResources().openRawResource(R.raw.dk));
+            X509Certificate certificate = (X509Certificate) factory.generateCertificate(mContext.getResources().openRawResource(R.raw.jks_type));
             return certificate.getPublicKey();
         } catch (CertificateException e) {
             Log.e(TAG, "Error during getPublicKey()", e);
@@ -66,7 +66,7 @@ public class JKSKeyProducer implements KeyProducer {
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private String readPrivateKeyPem() {
         StringBuilder stringBuilder = new StringBuilder();
-        InputStreamReader isr = new InputStreamReader(mContext.getResources().openRawResource(R.raw.privatekeypem));
+        InputStreamReader isr = new InputStreamReader(mContext.getResources().openRawResource(R.raw.jks_privatekey_pem));
         BufferedReader br = new BufferedReader(isr);
 
         String line;

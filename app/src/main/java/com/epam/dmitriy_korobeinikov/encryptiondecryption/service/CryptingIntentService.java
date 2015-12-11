@@ -90,7 +90,7 @@ public class CryptingIntentService extends IntentService {
         try {
             String resultData = composeResultData(cryptingInfo);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(resultData.getBytes());
-            DropboxAPI.Entry response = getInstance().DBApi.putFile("/DKTest/" + getFileName(cryptingInfo), inputStream, resultData.length(), null, null);
+            DropboxAPI.Entry response = getInstance().DBApi.putFile("/" + getFileName(cryptingInfo), inputStream, resultData.length(), null, null);
             mHandler.post(new DisplayToast(this, "File was successfully uploaded: " + response.path));
         } catch (DropboxException e) {
             Log.e(TAG, "Error during .putDataToDropBox()", e);
