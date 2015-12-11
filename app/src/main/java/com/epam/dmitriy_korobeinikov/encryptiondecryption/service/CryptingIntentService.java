@@ -17,10 +17,10 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.exception.DropboxException;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.Constants;
 import com.epam.dmitriy_korobeinikov.encryptiondecryption.model.CryptingInfo;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.BKSKeyProducer;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.JKSKeyProducer;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.KeyProducer;
-import com.epam.dmitriy_korobeinikov.encryptiondecryption.util.RSAEncryptionDecryption;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting.BKSKeyProducer;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting.JKSKeyProducer;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting.KeyProducer;
+import com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting.RSAEncryptionDecryption;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 
@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -68,7 +69,7 @@ public class CryptingIntentService extends IntentService {
         result.putParcelable(ARG_CRYPTING_INFO, cryptingInfo);
         cryptingResultReceiver.send(Activity.RESULT_OK, result);
 
-//        putDataToDropBox(cryptingInfo);
+        putDataToDropBox(cryptingInfo);
 //        getKeyStoreFromDropBox();
     }
 
@@ -89,7 +90,7 @@ public class CryptingIntentService extends IntentService {
         try {
             String resultData = composeResultData(cryptingInfo);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(resultData.getBytes());
-            DropboxAPI.Entry response = getInstance().DBApi.putFile("/" + getFileName(cryptingInfo), inputStream, resultData.length(), null, null);
+            DropboxAPI.Entry response = getInstance().DBApi.putFile("/DKTest/" + getFileName(cryptingInfo), inputStream, resultData.length(), null, null);
             mHandler.post(new DisplayToast(this, "File was successfully uploaded: " + response.path));
         } catch (DropboxException e) {
             Log.e(TAG, "Error during .putDataToDropBox()", e);
@@ -129,7 +130,8 @@ public class CryptingIntentService extends IntentService {
 
     private String getFileName(CryptingInfo cryptingInfo) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(CSV_FILE_NAME_DATE_FORMAT);
-        return Build.MANUFACTURER + "_" + Build.MODEL + "_" + CSV_FILE_NAME_PREFIX + dateFormat.format(new Date(cryptingInfo.startTime)) + CSV_FILE_NAME_EXTENSION;
+        return cryptingInfo.keystoreType + "_" + Build.MANUFACTURER + "_" + Build.MODEL + "_"
+                + CSV_FILE_NAME_PREFIX + dateFormat.format(new Date(cryptingInfo.startTime)) + CSV_FILE_NAME_EXTENSION;
     }
 
     private void fillConstantParameters(CryptingInfo cryptingInfo, String[] dataRow) {
@@ -153,7 +155,7 @@ public class CryptingIntentService extends IntentService {
         }
 
         public void run() {
-            Toast.makeText(mContext, mText, Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, mText, Toast.LENGTH_SHORT).show();
         }
     }
 }

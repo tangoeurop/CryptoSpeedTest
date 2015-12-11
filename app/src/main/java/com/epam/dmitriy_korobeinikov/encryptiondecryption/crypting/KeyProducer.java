@@ -1,4 +1,4 @@
-package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
+package com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;

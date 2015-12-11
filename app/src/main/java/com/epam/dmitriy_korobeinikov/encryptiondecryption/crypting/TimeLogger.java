@@ -1,4 +1,4 @@
-package com.epam.dmitriy_korobeinikov.encryptiondecryption.util;
+package com.epam.dmitriy_korobeinikov.encryptiondecryption.crypting;
 
 import android.util.Log;
 

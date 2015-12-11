@@ -31,4 +31,8 @@ dependencies {
     compile 'commons-lang:commons-lang:2.6'
     compile files('libs/dropbox-android-sdk-1.6.3.jar')
     compile files('libs/json_simple-1.1.jar')
+    compile 'com.madgag.spongycastle:core:1.53.0.0'
+    compile 'com.madgag.spongycastle:prov:1.53.0.0'
+    compile 'com.madgag.spongycastle:pkix:1.53.0.0'
+    compile 'com.madgag.spongycastle:pg:1.53.0.0'
 }
